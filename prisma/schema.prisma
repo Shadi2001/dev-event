@@ -1,0 +1,45 @@
+// Local SQLite database - no external DB required
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String
+  overview    String
+  image       String
+  venue       String
+  location    String
+  date        String
+  time        String
+  mode        String    // online | offline | hybrid
+  audience    String
+  agenda      String    // JSON array stored as string, parsed in app
+  organizer   String
+  tags        String    // JSON array stored as string, parsed in app
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bookings Booking[]
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  eventId   String
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, email])
+  @@index([eventId])
+  @@index([email])
+}
